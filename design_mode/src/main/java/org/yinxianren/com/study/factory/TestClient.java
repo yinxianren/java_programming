@@ -1,6 +1,8 @@
-package org.yinxianren.com.study.factory.simple;
+package org.yinxianren.com.study.factory;
 
 import org.junit.Test;
+import org.yinxianren.com.study.factory.configurable.SimpleFactoryConfigurable;
+import org.yinxianren.com.study.factory.simple.SimpleFactory;
 
 public class TestClient {
 
@@ -24,9 +26,15 @@ public class TestClient {
         animal.println(String.valueOf("animal(1)-->"+animal.hashCode()));
         Animal animalTwo = SimpleFactory.createAnimal(Cart.class);
         animal.println(String.valueOf("animal(2)-->"+animalTwo.hashCode()));
+        Animal animalThree = SimpleFactory.createAnimal(Dog.class);
+        animalThree.makeSound();
     }
 
 
+    @Test
+    public void testSimpleFactoryConfigurable(){
+        SimpleFactoryConfigurable.createAnimal();
+    }
 
 
 

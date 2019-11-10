@@ -1,4 +1,4 @@
-package org.yinxianren.com.study.factory.simple;
+package org.yinxianren.com.study.factory;
 
 public interface Animal {
 
