@@ -1,13 +1,16 @@
 package org.yinxianren.springboot.test.jxl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jxl.Workbook;
 import jxl.write.*;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.StringUtils;
 import org.yinxianren.springboot.mapper.PayOrderMapper;
 import org.yinxianren.springboot.service.*;
 import org.yinxianren.springboot.table.*;
@@ -15,6 +18,7 @@ import org.yinxianren.springboot.table.*;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,7 +28,7 @@ import java.util.stream.Collectors;
 public class PayOrderJxl {
 
     private final String filePath = "E:\\data\\logs\\";
-    private final String fileNameSuffix = ".xlsx";
+    private final String fileNameSuffix = ".xls";
 
     @Resource
     private PayOrderService payOrderService;
@@ -38,7 +42,8 @@ public class PayOrderJxl {
     private ChannelInfoService channelInfoService;
     @Resource
     private MerchantRateService merchantRateService;
-
+    @Resource
+    private SystemOrderTrackService systemOrderTrackService;
 
     @Test
     public void task() throws Exception{
@@ -82,7 +87,8 @@ public class PayOrderJxl {
             sheet = createSheetHeader(sheet);
             //每个商户对应的数据
             List<PayOrder> merPayOrder = merIdGroup.get(merId);
-
+            //每个商户在对应时间内的订单跟踪记录
+            List<SystemOrderTrack> systemOrderTrackList = getSysOrderTrack(time,merId);
             //代理商名称
             MerchantInfo  merchantInfo = merchantInfoList.stream()
                     .filter(mer->mer.getMerId().equalsIgnoreCase(merId))
@@ -254,7 +260,7 @@ public class PayOrderJxl {
                 col++;
                 SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 Label transDateLabel = null;
-               Date tradeTime = payOrder.getTradeTime();
+                Date tradeTime = payOrder.getTradeTime();
                 if( r%2 ==0 )
                     transDateLabel = new Label(col,r+1,tradeTime != null ? sdf2.format(tradeTime) : "",titleFormate02(sheet,r+1,col));
                 else
@@ -290,10 +296,23 @@ public class PayOrderJxl {
                 //   "子商户费率",
                 col++;
                 Label terMerRateLabel = null;
+                SystemOrderTrack systemOrderTrack =  systemOrderTrackList.stream()//
+                        .filter(sys-> sys.getRefer().contains("confirmFeePay")  ||   sys.getRefer().contains("payApply") )
+                        .filter(sys-> sys.getMerOrderId().equals(payOrder.getMerOrderId()))
+                        .findAny().orElse(new SystemOrderTrack());
+
+                String tradeInfo = systemOrderTrack.getTradeInfo();
+                String payFee  = "";
+                if( !StringUtils.isEmpty(tradeInfo)){
+                    Map<String,Object> map = JSON.parseObject(tradeInfo,Map.class);
+                    payFee  = (String) map.get("payFee");
+                }
                 if( r%2 ==0 )
-                    terMerRateLabel = new Label(col,r+1,payOrder.getPayType().toString(),titleFormate02(sheet,r+1,col));
+                    terMerRateLabel = new Label(col,r+1,payFee,titleFormate02(sheet,r+1,col));
                 else
-                    terMerRateLabel = new Label(col,r+1,payOrder.getPayType().toString(),titleFormate03(sheet,r+1,col));
+                    terMerRateLabel = new Label(col,r+1,payFee,titleFormate03(sheet,r+1,col));
+
+
                 sheet.addCell(terMerRateLabel);
                 //    "子商户成本"
                 col++;
@@ -315,7 +334,7 @@ public class PayOrderJxl {
 
     private WritableSheet createSheetHeader(WritableSheet sheet ) throws WriteException {
         String[] header ={
-                "日期(年/月/日)",
+                "日期 Y/M/D",
                 "商户号",
                 "商户订单号",
                 "平台订单号",
@@ -342,6 +361,7 @@ public class PayOrderJxl {
             Label  label = new Label(i,0,header[i],titleFormate01(sheet,0,i));
             sheet.addCell(label);
             if(header[i].equals("交易时间"))  sheet.setColumnView(i, header[i].length()*7);
+            else if(header[i].equals("商户订单号"))  sheet.setColumnView(i, header[i].length()*8);
             else  sheet.setColumnView(i, header[i].length()*5);
 
         }
@@ -355,7 +375,7 @@ public class PayOrderJxl {
         titleFormate.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);//单元格的内容垂直方向居中
         titleFormate.setBorder(Border.BOTTOM,BorderLineStyle.THICK, Colour.GREY_25_PERCENT);
         sheet.setRowView(row, 450, false);//设置第一行的高度
-        titleFormate.setBackground(colour(i));
+//        titleFormate.setBackground(colour(i));
         return titleFormate;
     }
 
@@ -366,7 +386,7 @@ public class PayOrderJxl {
         titleFormate.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);//单元格的内容垂直方向居中
         titleFormate.setBorder(Border.BOTTOM,BorderLineStyle.THICK, Colour.GREY_50_PERCENT);
         sheet.setRowView(row, 450, false);//设置第一行的高度
-        titleFormate.setBackground(colour(i));
+//        titleFormate.setBackground(colour(i));
         return titleFormate;
     }
 
@@ -378,15 +398,26 @@ public class PayOrderJxl {
         titleFormate.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);//单元格的内容垂直方向居中
         titleFormate.setBorder(Border.ALL,BorderLineStyle.DOUBLE, Colour.BLACK);
         sheet.setRowView(row, 600, false);//设置第一行的高度
-        titleFormate.setBackground(colour(i));
+//        titleFormate.setBackground(colour(i));
         return titleFormate;
     }
 
     private List<PayOrder> getPayOrder(String time){
         LambdaQueryWrapper<PayOrder> queryWrapper =  new QueryWrapper<PayOrder>().lambda();
+        queryWrapper.eq(PayOrder::getOrderStatus,0);
         queryWrapper.ge(PayOrder::getTradeTime,time+" 0:00:00");
         queryWrapper.le(PayOrder::getTradeTime,time+" 23:59:59");
         return payOrderService.list(queryWrapper);
+    }
+    //
+    private List<SystemOrderTrack>  getSysOrderTrack(String time,String merId){
+        LambdaQueryWrapper<SystemOrderTrack> queryWrapper =  new QueryWrapper<SystemOrderTrack>().lambda();
+        queryWrapper.eq(SystemOrderTrack::getMerId,merId);
+//        queryWrapper.eq(SystemOrderTrack::getOrderTrackStatus,0 );
+//        queryWrapper.like(SystemOrderTrack::getRefer,"/payApply");
+        queryWrapper.ge(SystemOrderTrack::getTradeTime,time+" 0:00:00");
+        queryWrapper.le(SystemOrderTrack::getTradeTime,time+" 23:59:59");
+        return systemOrderTrackService.list(queryWrapper);
     }
 
 

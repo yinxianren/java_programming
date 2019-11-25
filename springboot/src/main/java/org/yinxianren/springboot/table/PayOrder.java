@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-@ToString
 @Data
 @TableName("pay_order")
 public class PayOrder implements Serializable {
@@ -23,7 +22,7 @@ public class PayOrder implements Serializable {
     private BigDecimal amount ;
     private BigDecimal realAmount;
     private BigDecimal terminalFee ;
-    private BigDecimal payFee;
+//    private BigDecimal payFee;
     private BigDecimal fee;
     private BigDecimal channelFee;
     private BigDecimal agentFee;
