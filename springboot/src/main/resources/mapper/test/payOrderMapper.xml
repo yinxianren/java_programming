@@ -1,0 +1,13 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.yinxianren.springboot.mapper.PayOrderMapper">
+
+
+    <select id="getTimeGroup" resultType="java.lang.String">
+       SELECT DATE_FORMAT(trade_time,'%Y-%m-%d')  AS days FROM pay_order GROUP BY days;
+   </select>
+
+
+</mapper>
