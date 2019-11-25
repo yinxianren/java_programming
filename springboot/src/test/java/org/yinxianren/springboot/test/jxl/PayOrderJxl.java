@@ -312,7 +312,6 @@ public class PayOrderJxl {
                 else
                     terMerRateLabel = new Label(col,r+1,payFee,titleFormate03(sheet,r+1,col));
 
-
                 sheet.addCell(terMerRateLabel);
                 //    "子商户成本"
                 col++;
@@ -324,8 +323,6 @@ public class PayOrderJxl {
                 sheet.addCell(terMerFeeLabel);
             }
         }
-
-
         //把创建的内容写入到输出流中，并关闭输出流
         workbook.write();
         workbook.close();
