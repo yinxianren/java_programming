@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jxl.Workbook;
 import jxl.write.*;
 import jxl.write.Number;
-import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,14 +18,13 @@ import org.yinxianren.springboot.table.*;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class PayOrderJxl {
+public class PayOrderJxl2 {
 
     private final String filePath = "E:\\data\\logs\\";
     private final String fileNameSuffix = ".xls";
@@ -48,15 +46,20 @@ public class PayOrderJxl {
 
     @Test
     public void task() throws Exception{
-        //1.获取订单所有时间日记
-        Set<String> timeGrou = getTimeGroup();
+        //存放目录对象
+        FileOutputStream fileOutputStream = new FileOutputStream(new File(filePath+"PayOrderTableDate"+fileNameSuffix));
+        //创建工作薄
+        WritableWorkbook workbook = Workbook.createWorkbook(fileOutputStream);
+
         //2.根据时间去处理业务逻辑
-        for (String time : timeGrou) {
-            handleBusiness(time);
-        }
+        handleBusiness(workbook);
+        //把创建的内容写入到输出流中，并关闭输出流
+        workbook.write();
+        workbook.close();
+        fileOutputStream.close();
     }
     //
-    private void handleBusiness(String time) throws Exception {
+    private void handleBusiness( WritableWorkbook workbook ) throws Exception {
         //获取代理商信息
         List<AgentMerchantInfo> agentMerchantInfoList = getAgentMerInfo();
         //获取商户信息
@@ -68,17 +71,12 @@ public class PayOrderJxl {
         //获取商户费率
         List<MerchantRate> merchantRateList = getMerRate();
         //获取同一天的数据
-        List<PayOrder> payOrderList = getPayOrder(time);
+        List<PayOrder> payOrderList = getPayOrder();
         //按照商户号进行分门别类
         Map<String,List<PayOrder>> merIdGroup = payOrderList.stream().collect(Collectors.groupingBy(PayOrder::getMerId));
         //获取所有商户号
         Set<String> merIds = merIdGroup.keySet();
         List<String>  merIdList = new ArrayList<>(merIds);
-        //存放目录对象
-        FileOutputStream fileOutputStream = new FileOutputStream(new File(filePath+time+fileNameSuffix));
-        //创建工作薄
-        WritableWorkbook workbook = Workbook.createWorkbook(fileOutputStream);
-
         //每个商户都各自生成一个sheet
         for( int i = 0 ; i<merIdList.size();i++ ) {
             String merId = merIdList.get(i);
@@ -89,7 +87,7 @@ public class PayOrderJxl {
             //每个商户对应的数据
             List<PayOrder> merPayOrder = merIdGroup.get(merId);
             //每个商户在对应时间内的订单跟踪记录
-            List<SystemOrderTrack> systemOrderTrackList = getSysOrderTrack(time,merId);
+            List<SystemOrderTrack> systemOrderTrackList = getSysOrderTrack(merId);
             //代理商名称
             MerchantInfo  merchantInfo = merchantInfoList.stream()
                     .filter(mer->mer.getMerId().equalsIgnoreCase(merId))
@@ -289,13 +287,12 @@ public class PayOrderJxl {
                 MerchantRate merchantRate =  merchantRateList.stream().filter(mer->
                         mer.getMerId().equalsIgnoreCase(merId)
                                 &&  mer.getPayType().equalsIgnoreCase(payOrder.getPayType())
-                )
-                        .findAny().get();
+                ).findAny().orElse(null);
                 Number merRateLabel = null;
                 if( r%2 ==0 )
-                    merRateLabel = new Number(col,r+1,merchantRate.getRateFee().doubleValue(),titleFormate02(sheet,r+1,col));
+                    merRateLabel = new Number(col,r+1,null == merchantRate ? 0 : merchantRate.getRateFee().doubleValue(),titleFormate02(sheet,r+1,col));
                 else
-                    merRateLabel = new Number(col,r+1,merchantRate.getRateFee().doubleValue(),titleFormate03(sheet,r+1,col));
+                    merRateLabel = new Number(col,r+1,null == merchantRate ? 0 : merchantRate.getRateFee().doubleValue(),titleFormate03(sheet,r+1,col));
                 sheet.addCell(merRateLabel);
                 //   "子商户费率",
                 col++;
@@ -327,10 +324,6 @@ public class PayOrderJxl {
                 sheet.addCell(terMerFeeLabel);
             }
         }
-        //把创建的内容写入到输出流中，并关闭输出流
-        workbook.write();
-        workbook.close();
-        fileOutputStream.close();
     }
 
     private WritableSheet createSheetHeader(WritableSheet sheet ) throws WriteException {
@@ -410,6 +403,11 @@ public class PayOrderJxl {
         queryWrapper.le(PayOrder::getTradeTime,time+" 23:59:59");
         return payOrderService.list(queryWrapper);
     }
+
+    private List<PayOrder> getPayOrder(){
+        return payOrderService.list();
+    }
+
     //
     private List<SystemOrderTrack>  getSysOrderTrack(String time,String merId){
         LambdaQueryWrapper<SystemOrderTrack> queryWrapper =  new QueryWrapper<SystemOrderTrack>().lambda();
@@ -421,6 +419,11 @@ public class PayOrderJxl {
         return systemOrderTrackService.list(queryWrapper);
     }
 
+    private List<SystemOrderTrack>  getSysOrderTrack(String merId){
+        LambdaQueryWrapper<SystemOrderTrack> queryWrapper =  new QueryWrapper<SystemOrderTrack>().lambda();
+        queryWrapper.eq(SystemOrderTrack::getMerId,merId);
+        return systemOrderTrackService.list(queryWrapper);
+    }
 
     private Set<String> getTimeGroup(){
         PayOrderMapper payOrderMapper = (PayOrderMapper) payOrderService.getBaseMapper();
