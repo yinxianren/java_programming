@@ -1,10 +1,10 @@
 package org.yinxianren.com.netty.nio;
 
-import lombok.val;
 import org.junit.Test;
 import org.yinxianren.com.netty.tools.Println;
 
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -46,32 +46,71 @@ public class TestIntBuffer implements Println {
         //获取数据
         String src = msg01();
         int position = 0;
-        int limit = byteBuffer.capacity()/2;
+        int limit = byteBuffer.capacity()/3;
         int size = src.length();
         //建数据放入数据
         while(true){
+            byteBuffer.clear();
             byte[] bytes = src.substring(position,limit).getBytes();
-           if(byteBuffer.position() == byteBuffer.limit() && byteBuffer.limit() > 0 ){
-                byteBuffer.flip();
+            if(byteBuffer.position() == byteBuffer.limit() && byteBuffer.limit() > 0 ){
                 byteBuffer.limit(bytes.length);
             }
             byteBuffer.put(bytes);
             byteBuffer.flip();
             //建缓冲区的数据写的通道里
             fileChannel.write(byteBuffer);
-           if(limit == size){
-               //关闭资源
-               fileChannel.close();
-               fileOutputStream.close();
-               break;
-           }
+            if(limit == size){
+                //关闭资源
+                fileChannel.close();
+                fileOutputStream.close();
+                break;
+            }
             position = limit;
-           if(size-limit >= 64 ){
-               limit = limit +  byteBuffer.capacity()/2;
-           }else{
-               limit =  limit+(size-limit);
-           }
+            if(size-limit >= byteBuffer.capacity() ){
+                limit = limit +  byteBuffer.capacity()/3;
+            }else{
+                limit =  limit+(size-limit);
+            }
         }
+    }
+
+    /**
+     *   nio 读文件
+     * @throws Exception
+     */
+    @Test
+    public void test_03() throws Exception{
+        FileInputStream inputStream = new FileInputStream(new File("E:\\log\\spring.log"));
+        FileChannel channel = inputStream.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(5);
+        while ( -1 != channel.read(buffer) ){
+            buffer.flip();
+            print(new String(buffer.array()));
+            buffer.clear();
+        }
+        channel.close();
+        inputStream.close();
+    }
+
+    /**
+     *   测试 nio拷贝文件
+     */
+    @Test
+    public void test_04()throws Exception{
+        FileInputStream inputStream = new FileInputStream(new File("E:\\log\\spring.log"));
+        FileChannel inputChannel = inputStream.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(18);
+        FileOutputStream outputStream = new FileOutputStream(new File("E:\\data\\logs\\spring.log"));
+        FileChannel outChannel = outputStream.getChannel();
+        while (-1 != inputChannel.read(buffer) ){
+            buffer.flip();
+            outChannel.write(buffer);
+            buffer.clear();
+        }
+        outChannel.close();
+        outputStream.close();
+        inputChannel.close();
+        inputStream.close();
     }
 
 
