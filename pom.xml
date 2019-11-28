@@ -14,6 +14,7 @@
         <module>design_mode</module>
         <module>netty</module>
         <module>springboot</module>
+        <module>mybatis</module>
     </modules>
     <groupId>org.yinxianren.com</groupId>
     <artifactId>java_programming</artifactId>

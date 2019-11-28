@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.yinxianren.mybatis.one.AsyncNotifyMapper">
+
+    <select id="selectOne" resultType="AsyncNotifyTable">
+       select * from 1_async_notify_table where id = #{id}
+  </select>
+
+</mapper>
