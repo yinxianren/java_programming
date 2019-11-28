@@ -20,11 +20,11 @@ public class QueryBalance implements Println{
     @Test
     public void  query(){
         PayTreeMap<String,Object> treeMap = new PayTreeMap<String,Object>()
-                .lput("orgid","")//机构号	平台分配的机构号	否
-                .lput("appid","")//应用ID	平台分配的机构APPID	否
+                .lput("orgid","201006358406")//机构号	平台分配的机构号	否
+                .lput("appid","0001160")//应用ID	平台分配的机构APPID	否
                 .lput("randomstr", UUID.getUUID())
-                .lput("cusid","")//商户号
-                .lput("key","")
+                .lput("cusid","101007383894")//商户号
+                .lput("key","86354f4adb0ca35816dc1f599b49c559")
                 ;
 
         treeMap.lput("sign",getMd5Sign(treeMap));
@@ -50,6 +50,26 @@ public class QueryBalance implements Println{
                 +sb.toString()
                 +"\n*********************************************************\n");
     }
+
+    @Test
+    public void testPayMoney(){
+        PayTreeMap<String,Object> treeMap = new PayTreeMap<String,Object>()
+                .lput("orgid","201006358406")//机构号	平台分配的机构号	否
+                .lput("appid","0001160")//应用ID	平台分配的机构APPID	否
+                .lput("randomstr", UUID.getUUID())
+                .lput("key","86354f4adb0ca35816dc1f599b49c559")
+
+                .lput("cusid","101007713910")//商户号
+                .lput("orderid",UUID.getUUID()+System.currentTimeMillis())
+                .lput("amount",12)
+                .lput("isall",1)
+                .lput("fee","");
+
+        treeMap.lput("sign",getMd5Sign(treeMap));
+        treeMap.remove("key");
+    }
+
+
 
 
     private  String getMd5Sign(Map<String,Object> postData){

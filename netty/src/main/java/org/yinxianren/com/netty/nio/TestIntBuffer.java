@@ -113,6 +113,25 @@ public class TestIntBuffer implements Println {
         inputStream.close();
     }
 
+    /**
+     *  测试通道流之间拷贝数据
+     */
+    @Test
+    public void test_05()throws Exception{
+        FileInputStream inputStream = new FileInputStream(new File("E:\\log\\spring.log"));
+        FileChannel inputChannel = inputStream.getChannel();
+        FileOutputStream outputStream = new FileOutputStream(new File("E:\\data\\logs\\spring3.log"));
+        FileChannel outChannel = outputStream.getChannel();
+        //拷贝文件
+//        outChannel.transferFrom(inputChannel,0,inputChannel.size());
+        inputChannel.transferTo(0,inputChannel.size(),outChannel);
+
+        outChannel.close();
+        outputStream.close();
+        inputChannel.close();
+        inputStream.close();
+    }
+
 
 
     private String msg01(){
