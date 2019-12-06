@@ -85,4 +85,11 @@ public class QueryBalance implements Println{
         return md5Sign;
     }
 
+    @Test
+    public void test_001(){
+        String src = "{amount=2.68&merId=M1573460997327&merOrderId=2019112900001&msg=%E6%88%90%E5%8A%9F&platformOrderId=B11RXH1*e26d46ab484a42e3bfcd6be2e59ed7451574991422099&signMsg=0C53600607A3D524729241E88E2DAFD4&status=1&terMerId=10015431686029845}";
+        Map<String,Object> parse = JSON.parseObject(src,Map.class);
+        println(parse.keySet().toArray());
+    }
+
 }

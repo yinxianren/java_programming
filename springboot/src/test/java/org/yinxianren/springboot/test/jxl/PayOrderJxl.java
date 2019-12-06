@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @SpringBootTest
 public class PayOrderJxl {
 
-    private final String filePath = "E:\\data\\logs\\";
+    private final String filePath = "E:\\log\\";
     private final String fileNameSuffix = ".xls";
 
     @Resource

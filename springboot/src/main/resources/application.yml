@@ -5,10 +5,15 @@ server:
 
 # 数据源
 spring:
+
+  data:
+    mongodb:
+      uri: mongodb://yxr:rxh2019@192.168.1.111:27017/internal_playment
+
   datasource:
     username: root
     password: rxh@2019
-    url: jdbc:mysql://192.168.1.68/internalpay?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowMultiQueries=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://192.168.1.68/new_cross?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowMultiQueries=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
     initialSize: 50
