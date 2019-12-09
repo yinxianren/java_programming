@@ -1,4 +1,5 @@
 package org.yinxianren.springboot.aop.annotation;
+
 import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -11,7 +12,4 @@ public @interface MgdbGetOne {
      * @return
      */
     String collectionName();
-
-
-
 }

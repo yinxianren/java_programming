@@ -165,7 +165,8 @@ public class PayOrderJxl {
 
                 // "通道名称",
                 col++;
-                ChannelInfo channelInfo =  channelInfoList.stream().filter(ch->ch.getChannelId().equalsIgnoreCase(payOrder.getChannelId()))
+                ChannelInfo channelInfo =  channelInfoList
+                        .stream().filter(ch->ch.getChannelId().equalsIgnoreCase(payOrder.getChannelId()))
                         .findAny().get();
                 Label channelNameLabel = null;
                 if( r%2 ==0 )
