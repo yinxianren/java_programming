@@ -23,7 +23,7 @@ public class QueryBalance implements Println{
                 .lput("orgid","201006358406")//机构号	平台分配的机构号	否
                 .lput("appid","0001160")//应用ID	平台分配的机构APPID	否
                 .lput("randomstr", UUID.getUUID())
-                .lput("cusid","101007383894")//商户号
+                .lput("cusid","101006955595")//商户号
                 .lput("key","86354f4adb0ca35816dc1f599b49c559")
                 ;
 
