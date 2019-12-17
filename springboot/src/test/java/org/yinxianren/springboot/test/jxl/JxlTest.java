@@ -2,8 +2,11 @@ package org.yinxianren.springboot.test.jxl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jxl.Cell;
+import jxl.Sheet;
 import jxl.Workbook;
 import jxl.format.UnderlineStyle;
+import jxl.read.biff.BiffException;
 import jxl.write.*;
 import jxl.write.Boolean;
 import jxl.write.Number;
@@ -202,4 +205,39 @@ public class JxlTest {
         workbook.close();
         fileOutputStream.close();
     }
+
+
+
+    @Test
+    public  void readExcel() throws BiffException, IOException {
+        File xlsFile = new File("C:\\Users\\yxr\\Desktop\\参数管理.xlsx");
+        // 获得工作簿对象
+        Workbook workbook = Workbook.getWorkbook(xlsFile);
+        // 获得所有工作表
+        Sheet[] sheets = workbook.getSheets();
+        // 遍历工作表
+        if (sheets != null) {
+            for (Sheet sheet : sheets) {
+                // 获得行数
+                int rows = sheet.getRows();
+                // 获得列数
+                int cols = sheet.getColumns();
+                // 读取数据
+                for (int row = 0; row < rows; row++) {
+                    for (int col = 0; col < cols; col++) {
+                        Cell cell = sheet.getCell(col, row);
+                        System.out.print(cell.getContents() + " ");
+                    }
+                    System.out.println();
+                }
+            }
+        }
+        workbook.close();
+    }
+
+
+
+
+
+
 }
