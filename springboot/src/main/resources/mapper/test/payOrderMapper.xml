@@ -8,6 +8,11 @@
     <select id="getTimeGroup" resultType="java.lang.String">
        SELECT DATE_FORMAT(trade_time,'%Y-%m-%d')  AS days FROM pay_order GROUP BY days;
    </select>
+    <select id="sumAmount"  parameterType="java.util.Map" resultType="java.util.Map">
+        select SUM(po.amount) AS totalAmount,COUNT(*) AS number
+        from pay_order  AS po
+        where po.mer_id = #{merId};
+    </select>
 
 
 </mapper>
