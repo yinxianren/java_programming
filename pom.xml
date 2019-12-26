@@ -16,6 +16,7 @@
         <module>springboot</module>
         <module>mybatis</module>
         <module>java8</module>
+        <module>hadoop_demo</module>
     </modules>
     <groupId>org.yinxianren.com</groupId>
     <artifactId>java_programming</artifactId>
