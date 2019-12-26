@@ -6,10 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="design_mode" />
-        <module name="netty" />
         <module name="springboot" />
+        <module name="netty" />
         <module name="mybatis" />
+        <module name="design_mode" />
+        <module name="java8" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8" />
@@ -17,6 +18,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="design_mode" options="-parameters" />
+      <module name="java8" options="-parameters" />
       <module name="mybatis" options="-parameters" />
       <module name="netty" options="-parameters" />
       <module name="springboot" options="-parameters" />
